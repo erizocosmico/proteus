@@ -60,9 +60,9 @@ var mockEnum = &Enum{
 	Options: Options{
 		"is_cute": NewLiteralValue("true"),
 	},
-	Values: EnumValues{
-		&EnumValue{Name: "PINK_CUTIE", Value: 0},
-		&EnumValue{Name: "RED_FURY", Value: 1},
+	Values: []*EnumValue{
+		{Name: "PINK_CUTIE", Value: 0},
+		{Name: "RED_FURY", Value: 1},
 	},
 }
 

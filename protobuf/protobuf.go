@@ -195,15 +195,7 @@ func (*Map) isType()   {}
 type Enum struct {
 	Name    string
 	Options Options
-	Values  EnumValues
-}
-
-// EnumValues is a collction of enumeration values.
-type EnumValues []*EnumValue
-
-// Add adds a new value to the list of values of the enum.
-func (v *EnumValues) Add(name string, val uint, options Options) {
-	*v = EnumValues(append(*v, &EnumValue{name, val, options}))
+	Values  []*EnumValue
 }
 
 // EnumValue is a single value in an enumeration.

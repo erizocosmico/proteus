@@ -193,6 +193,11 @@ func (s *TransformerSuite) TestTransformField() {
 			Name: c.name,
 			Type: c.typ,
 		}, 0)
+
+		if c.expected != nil {
+			c.expected.Options = make(Options)
+		}
+
 		s.Equal(c.expected, f, c.name)
 	}
 }
@@ -221,7 +226,7 @@ func (s *TransformerSuite) TestTransformStruct() {
 }
 
 func (s *TransformerSuite) TestTransformEnum() {
-	enum := s.t.transformEnum(&scanner.Enum{
+	enum := s.t.transformEnum(new(Package), &scanner.Enum{
 		Name:   "Foo",
 		Values: []string{"Foo", "Bar", "BarBaz"},
 	})

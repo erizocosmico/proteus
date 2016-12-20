@@ -20,13 +20,19 @@ import (
 // ability to override any kind of type.
 type Transformer struct {
 	mappings TypeMappings
+	plugins  plugins
 }
 
 // NewTransformer creates a new transformer instance.
 func NewTransformer() *Transformer {
 	return &Transformer{
 		mappings: make(TypeMappings),
+		plugins:  plugins{},
 	}
+}
+
+func (t *Transformer) AddPlugin(p Plugin) {
+	t.plugins.add(p)
 }
 
 // SetMappings will set the custom mappings of the transformer. If nil is
@@ -41,8 +47,9 @@ func (t *Transformer) SetMappings(m TypeMappings) {
 // Transform converts a scanned package to a protobuf package.
 func (t *Transformer) Transform(p *scanner.Package) *Package {
 	pkg := &Package{
-		Name: toProtobufPkg(p.Path),
-		Path: p.Path,
+		Name:    toProtobufPkg(p.Path),
+		Path:    p.Path,
+		Options: make(Options),
 	}
 
 	for _, s := range p.Structs {
@@ -51,25 +58,34 @@ func (t *Transformer) Transform(p *scanner.Package) *Package {
 	}
 
 	for _, e := range p.Enums {
-		enum := t.transformEnum(e)
+		enum := t.transformEnum(pkg, e)
 		pkg.Enums = append(pkg.Enums, enum)
 	}
 
+	t.plugins.Package(pkg, p)
 	return pkg
 }
 
-func (t *Transformer) transformEnum(e *scanner.Enum) *Enum {
-	enum := &Enum{Name: e.Name}
+func (t *Transformer) transformEnum(pkg *Package, e *scanner.Enum) *Enum {
+	enum := &Enum{Name: e.Name, Options: make(Options)}
 
 	for i, v := range e.Values {
-		enum.Values.Add(toUpperSnakeCase(v), uint(i), nil)
+		val := &EnumValue{
+			Name:    toUpperSnakeCase(v),
+			Value:   uint(i),
+			Options: make(Options),
+		}
+
+		enum.Values = append(enum.Values, val)
+		t.plugins.EnumValue(pkg, val, v)
 	}
 
+	t.plugins.Enum(pkg, enum, e)
 	return enum
 }
 
 func (t *Transformer) transformStruct(pkg *Package, s *scanner.Struct) *Message {
-	msg := &Message{Name: s.Name}
+	msg := &Message{Name: s.Name, Options: make(Options)}
 
 	for i, f := range s.Fields {
 		field := t.transformField(pkg, f, i+1)
@@ -80,8 +96,10 @@ func (t *Transformer) transformStruct(pkg *Package, s *scanner.Struct) *Message 
 		}
 
 		msg.Fields = append(msg.Fields, field)
+		t.plugins.Field(pkg, field, f)
 	}
 
+	t.plugins.Message(pkg, msg, s)
 	return msg
 }
 
@@ -107,6 +125,7 @@ func (t *Transformer) transformField(pkg *Package, field *scanner.Field, pos int
 		Pos:      pos,
 		Type:     typ,
 		Repeated: repeated,
+		Options:  make(Options),
 	}
 }
 

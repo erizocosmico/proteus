@@ -435,10 +435,20 @@ func TestScanner(t *testing.T) {
 
 	require.Equal(0, len(pkg.Funcs), "pkg funcs")
 	require.Equal(4, len(subpkg.Funcs), "subpkg funcs")
-	assertFunc(t, findFuncByName("Generated", subpkg.Funcs), "Generated", "", []string{"string"}, []string{"bool", "error"}, false)
-	assertFunc(t, findFuncByName("GeneratedMethod", subpkg.Funcs), "GeneratedMethod", "Point", []string{"int32"}, []string{"Point"}, false)
-	assertFunc(t, findFuncByName("GeneratedMethodOnPointer", subpkg.Funcs), "GeneratedMethodOnPointer", "Point", []string{"bool"}, []string{"Point"}, false)
-	assertFunc(t, findFuncByName("Name", subpkg.Funcs), "Name", "MyContainer", []string{}, []string{"string"}, false)
+	assertFunc(t, findFuncByName("Generated", subpkg.Funcs), "Generated", "", []string{"string"}, []string{"bool", "error"}, false, "get", "/generated")
+	assertFunc(t, findFuncByName("GeneratedMethod", subpkg.Funcs), "GeneratedMethod", "Point", []string{"int32"}, []string{"Point"}, false, "get", "/point/bar")
+	assertFunc(t, findFuncByName("GeneratedMethodOnPointer", subpkg.Funcs), "GeneratedMethodOnPointer", "Point", []string{"bool"}, []string{"Point"}, false, "get", "/point/foo")
+	assertFunc(t, findFuncByName("Name", subpkg.Funcs), "Name", "MyContainer", []string{}, []string{"string"}, false, "get", "/container/name")
+}
+
+func TestScanInvalidFunc(t *testing.T) {
+	require := require.New(t)
+
+	scanner, err := New(projectPkg("fixtures"), projectPkg("fixtures/invalidrpc"))
+	require.Nil(err)
+
+	_, err = scanner.Scan()
+	require.Error(err)
 }
 
 func assertEnumValues(t *testing.T, values []*EnumValue, expected ...string) {
@@ -489,7 +499,7 @@ func assertStruct(t *testing.T, s *Struct, name string, generate bool, fields ..
 	require.True(t, strings.HasPrefix(doc, s.Name), "Doc for %s starts with its name", s.Name)
 }
 
-func assertFunc(t *testing.T, fn *Func, name string, recv string, input []string, result []string, variadic bool) {
+func assertFunc(t *testing.T, fn *Func, name string, recv string, input []string, result []string, variadic bool, method, path string) {
 	require.Equal(t, name, fn.Name, "func name")
 
 	if fn.Receiver != nil {
@@ -506,6 +516,8 @@ func assertFunc(t *testing.T, fn *Func, name string, recv string, input []string
 
 	require.Equal(t, variadic, fn.IsVariadic, "is variadic")
 	require.Equal(t, fmt.Sprintf("%s ...", fn.Name), strings.TrimSpace(strings.Join(fn.Doc, "\n")))
+	require.Equal(t, method, fn.Method, "method")
+	require.Equal(t, path, fn.Path, "path")
 }
 
 func typeFrom(t Type) string {

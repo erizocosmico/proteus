@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"reflect"
 	"strings"
 
 	"gopkg.in/src-d/go-parse-utils.v1"
@@ -135,6 +136,25 @@ func (ctx *context) shouldGenerateFunc(name string) bool {
 		return hasGenerateComment(fn.Doc)
 	}
 	return false
+}
+
+func (ctx *context) optionsForFunc(name string) (method, path string, ok bool) {
+	if fn, ok := ctx.funcs[name]; ok && fn.Doc != nil {
+		return optionsFromComments(fn.Doc)
+	}
+	return
+}
+
+func optionsFromComments(doc *ast.CommentGroup) (method, path string, ok bool) {
+	for _, l := range doc.List {
+		if strings.HasPrefix(l.Text, genComment) {
+			tag := reflect.StructTag(strings.TrimSpace(l.Text[len(genComment):]))
+			method := tag.Get("api_method")
+			path := tag.Get("api_path")
+			return method, path, method != "" && path != ""
+		}
+	}
+	return
 }
 
 func hasGenerateComment(doc *ast.CommentGroup) bool {

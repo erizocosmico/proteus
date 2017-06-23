@@ -21,19 +21,19 @@ func Foo(a int) (float64, error) {
 }
 
 // Generated ...
-//proteus:generate
+//proteus:generate api_path:"/generated" api_method:"get"
 func Generated(a string) (bool, error) {
 	return len(a) > 0, nil
 }
 
 // GeneratedMethod ...
-//proteus:generate
+//proteus:generate api_path:"/point/bar" api_method:"get"
 func (p Point) GeneratedMethod(a int32) *Point {
 	return &p
 }
 
 // GeneratedMethodOnPointer ...
-//proteus:generate
+//proteus:generate api_path:"/point/foo" api_method:"get"
 func (p *Point) GeneratedMethodOnPointer(a bool) *Point {
 	return p
 }
@@ -44,7 +44,7 @@ type MyContainer struct {
 }
 
 // Name ...
-//proteus:generate
+//proteus:generate api_path:"/container/name" api_method:"get"
 func (c *MyContainer) Name() string {
 	return c.Name()
 }

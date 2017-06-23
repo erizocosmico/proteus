@@ -167,6 +167,11 @@ func (p *Package) scanObject(ctx *context, o types.Object) error {
 		if ctx.shouldGenerateFunc(nameForFunc(o)) {
 			fn := scanFunc(&Func{Name: o.Name()}, t)
 			ctx.trySetDocs(nameForFunc(o), fn)
+			var ok bool
+			fn.Method, fn.Path, ok = ctx.optionsForFunc(nameForFunc(o))
+			if !ok {
+				return fmt.Errorf("proteus: function %s should have api_method and api_path on its proteus:generate comment", nameForFunc(o))
+			}
 			p.Funcs = append(p.Funcs, fn)
 		}
 	}

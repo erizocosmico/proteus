@@ -315,4 +315,10 @@ type Func struct {
 	Output   []Type
 	// IsVariadic will be true if the last input parameter is variadic.
 	IsVariadic bool
+	// Method is the HTTP method for the JSON API endpoint that will call this
+	// function.
+	Method string
+	// Path is the path for the JSON API endpoint that will call this
+	// function.
+	Path string
 }

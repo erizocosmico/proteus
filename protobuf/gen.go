@@ -176,11 +176,19 @@ func writeService(buf *bytes.Buffer, pkg *Package) {
 	for _, rpc := range pkg.RPCs {
 		writeDocs(buf, rpc.Docs, true)
 		buf.WriteString(fmt.Sprintf(
-			"\trpc %s (%s) returns (%s);\n",
+			"\trpc %s (%s) returns (%s)",
 			rpc.Name,
 			rpc.Input,
 			rpc.Output,
 		))
+
+		if len(rpc.Options) > 0 {
+			buf.WriteString(" {\n")
+			writeOptions(buf, rpc.Options, true)
+			buf.WriteString("\t};\n")
+		} else {
+			buf.WriteString(" {};\n")
+		}
 	}
 	buf.WriteString("}\n\n")
 }

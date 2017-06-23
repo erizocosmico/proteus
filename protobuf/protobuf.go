@@ -1,6 +1,7 @@
 package protobuf // import "gopkg.in/src-d/proteus.v1/protobuf"
 
 import (
+	"bytes"
 	"fmt"
 	"path/filepath"
 	"sort"
@@ -147,6 +148,30 @@ func NewStringValue(val string) StringValue {
 func (StringValue) isOptionValue() {}
 func (v StringValue) String() string {
 	return fmt.Sprintf("%q", v.val)
+}
+
+type MapValue map[string]OptionValue
+
+func (MapValue) isOptionValue() {}
+
+func (v MapValue) String() string {
+	var buf bytes.Buffer
+	var keys = make([]string, 0, len(v))
+	for k := range v {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	buf.WriteString("{ ")
+	for _, k := range keys {
+		buf.WriteString(k)
+		buf.WriteString(" = ")
+		buf.WriteString(v[k].String())
+		buf.WriteRune(' ')
+	}
+	buf.WriteString("}")
+
+	return buf.String()
 }
 
 // Type is the common interface of all possible types, which are named types,

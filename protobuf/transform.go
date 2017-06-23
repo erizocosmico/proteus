@@ -66,9 +66,12 @@ func (t *Transformer) SetEnumSet(ts TypeSet) {
 // Transform converts a scanned package to a protobuf package.
 func (t *Transformer) Transform(p *scanner.Package) *Package {
 	pkg := &Package{
-		Name:    toProtobufPkg(p.Path),
-		Path:    p.Path,
-		Imports: []string{"github.com/gogo/protobuf/gogoproto/gogo.proto"},
+		Name: toProtobufPkg(p.Path),
+		Path: p.Path,
+		Imports: []string{
+			"github.com/gogo/protobuf/gogoproto/gogo.proto",
+			"google/api/annotations.proto", // required by grpc-gateway
+		},
 		Options: t.defaultOptionsForPackage(p),
 	}
 

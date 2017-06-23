@@ -36,10 +36,12 @@ func (s *GenSuite) TearDownTest() {
 }
 
 const expectedOptionsIndented = `	option bar = true;
+	option baz = { kbaz = 123 kfoo = "bar" };
 	option foo = "bar";
 `
 
 const expectedOptions = `option bar = true;
+option baz = { kbaz = 123 kfoo = "bar" };
 option foo = "bar";
 `
 
@@ -47,6 +49,10 @@ func (s *GenSuite) TestWriteOptions() {
 	options := Options{
 		"foo": NewStringValue("bar"),
 		"bar": NewLiteralValue("true"),
+		"baz": MapValue{
+			"kfoo": NewStringValue("bar"),
+			"kbaz": NewLiteralValue("123"),
+		},
 	}
 
 	writeOptions(s.buf, options, true)
@@ -177,9 +183,9 @@ var mockRpcs = []*RPC{
 
 const expectedService = `service BarService {
 	// DoFoo does a lot of Foo
-	rpc DoFoo (foo.bar.DoFooRequest) returns (foo.bar.DoFooResponse);
+	rpc DoFoo (foo.bar.DoFooRequest) returns (foo.bar.DoFooResponse) {};
 	// DoBar does a lot of Bar
-	rpc DoBar (foo.bar.DoBarRequest) returns (foo.bar.DoBarResponse);
+	rpc DoBar (foo.bar.DoBarRequest) returns (foo.bar.DoBarResponse) {};
 }
 
 `

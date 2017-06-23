@@ -721,6 +721,7 @@ func (s *TransformerSuite) TestTransform() {
 	s.Equal(NewLiteralValue("true"), pkg.Options["(gogoproto.protosizer_all)"])
 	s.Equal([]string{
 		"github.com/gogo/protobuf/gogoproto/gogo.proto",
+		"google/api/annotations.proto",
 		"google/protobuf/timestamp.proto",
 		"gopkg.in/src-d/proteus.v1/fixtures/subpkg/generated.proto",
 	}, pkg.Imports)
@@ -732,7 +733,10 @@ func (s *TransformerSuite) TestTransform() {
 	s.Equal("gopkg.in.srcd.proteus.v1.fixtures.subpkg", pkg.Name)
 	s.Equal("gopkg.in/src-d/proteus.v1/fixtures/subpkg", pkg.Path)
 	s.Equal(NewStringValue("subpkg"), pkg.Options["go_package"])
-	s.Equal([]string{"github.com/gogo/protobuf/gogoproto/gogo.proto"}, pkg.Imports)
+	s.Equal([]string{
+		"github.com/gogo/protobuf/gogoproto/gogo.proto",
+		"google/api/annotations.proto",
+	}, pkg.Imports)
 	s.Equal(0, len(pkg.Enums))
 
 	var msgs = []string{

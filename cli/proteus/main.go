@@ -105,6 +105,7 @@ func genRPCServer(c *cli.Context) error {
 var (
 	goSrc       = filepath.Join(os.Getenv("GOPATH"), "src")
 	protobufSrc = filepath.Join(goSrc, "github.com", "gogo", "protobuf")
+	grpcGateway = filepath.Join(goSrc, "github.com", "grpc-ecosystem", "grpc-gateway", "third_party", "googleapis")
 )
 
 func genAll(c *cli.Context) error {
@@ -129,25 +130,52 @@ func genAll(c *cli.Context) error {
 			return fmt.Errorf("error generating Go files from %q: %s", proto, err)
 		}
 
-		matches, err := filepath.Glob(filepath.Join(path, p, "*.pb.go"))
+		dest := filepath.Join(outPath, p)
+		err := mvGlob(
+			filepath.Join(path, p, "*.pb.go"),
+			dest,
+		)
 		if err != nil {
-			return fmt.Errorf("error moving Go files")
+			return err
 		}
 
-		moveToDir := filepath.Join(outPath, p)
-		for _, s := range matches {
-			mv(s, moveToDir)
+		if err := grpcGatewayExec(protocPath, p, outPath, proto); err != nil {
+			return fmt.Errorf("error generating GRPC Gateway from %q: %s", proto, err)
+		}
+
+		err = mvGlob(
+			filepath.Join(path, p, "*pb.gw.go"),
+			dest,
+		)
+		if err != nil {
+			return err
 		}
 	}
 
 	return genRPCServer(c)
 }
 
+func mvGlob(glob, dest string) error {
+	matches, err := filepath.Glob(glob)
+	if err != nil {
+		return fmt.Errorf("error moving Go files: %s", err)
+	}
+
+	for _, s := range matches {
+		if err := mv(s, dest); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func protocExec(protocPath, pkg, outPath, protoFile string) error {
 	protocArgs := fmt.Sprintf(
-		"--proto_path=%s:%s:%s:%s:.",
+		"--proto_path=%s:%s:%s:%s:%s:.",
 		goSrc,
 		path,
+		grpcGateway,
 		filepath.Join(protobufSrc, "protobuf"),
 		filepath.Join(path, pkg),
 	)
@@ -166,6 +194,30 @@ func protocExec(protocPath, pkg, outPath, protoFile string) error {
 	return cmd.Run()
 }
 
+func grpcGatewayExec(protocPath, pkg, outPath, protoFile string) error {
+	protocArgs := fmt.Sprintf(
+		"--proto_path=%s:%s:%s:%s:%s:.",
+		goSrc,
+		path,
+		grpcGateway,
+		filepath.Join(protobufSrc, "protobuf"),
+		filepath.Join(path, pkg),
+	)
+
+	report.Info("generating grpc gateway: %s %s", protocPath, protocArgs)
+
+	cmd := exec.Command(
+		protocPath,
+		protocArgs,
+		genAllGRPCGatewayOutOption(outPath),
+		protoFile,
+	)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	return cmd.Run()
+}
+
 func mv(from, to string) error {
 	cmd := exec.Command("mv", from, to)
 	cmd.Stdout = os.Stdout
@@ -175,16 +227,23 @@ func mv(from, to string) error {
 }
 
 func genAllGoFastOutOption(outPath string) string {
-	str := "--gofast_out=plugins=grpc"
+	return optionWithImportsAndPath("--gofast_out=plugins=grpc", outPath)
+}
+
+func genAllGRPCGatewayOutOption(outPath string) string {
+	return optionWithImportsAndPath("--grpc-gateway_out=logtostderr=true", outPath)
+}
+
+func optionWithImportsAndPath(opt string, outPath string) string {
 	importMappings := protobuf.DefaultMappings.ToGoOutPath()
 
 	if importMappings != "" {
-		str += fmt.Sprintf(",%s", importMappings)
+		opt += fmt.Sprintf(",%s", importMappings)
 	}
 
-	str += fmt.Sprintf(":%s", outPath)
+	opt += fmt.Sprintf(":%s", outPath)
 
-	return str
+	return opt
 }
 
 func checkFolder(p string) error {

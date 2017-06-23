@@ -92,7 +92,7 @@ func (s *Scanner) scanPackage(p string) (*Package, error) {
 		p,
 		parseutil.FileFilters{
 			func(pkg, file string, typ parseutil.FileType) bool {
-				return !strings.HasSuffix(file, ".pb.go")
+				return !strings.HasSuffix(file, ".pb.go") && !strings.HasSuffix(file, ".pb.gw.go")
 			},
 			func(pkg, file string, typ parseutil.FileType) bool {
 				return !strings.HasSuffix(file, ".proteus.go")

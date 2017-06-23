@@ -114,6 +114,13 @@ func (t *Transformer) transformFunc(pkg *Package, f *scanner.Func, names nameSet
 	}
 
 	output, hasError := removeLastError(f.Output)
+	apiOptions := MapValue{
+		f.Method: NewStringValue(f.Path),
+	}
+	if strings.ToLower(f.Method) != "get" {
+		apiOptions["body"] = NewStringValue("*")
+	}
+
 	rpc := &RPC{
 		Docs:       f.Doc,
 		Name:       name,
@@ -124,10 +131,7 @@ func (t *Transformer) transformFunc(pkg *Package, f *scanner.Func, names nameSet
 		Input:      t.transformInputTypes(pkg, f.Input, names, name),
 		Output:     t.transformOutputTypes(pkg, output, names, name),
 		Options: Options{
-			"(google.api.http)": MapValue{
-				f.Method: NewStringValue(f.Path),
-				"body":   NewStringValue("*"),
-			},
+			"(google.api.http)": apiOptions,
 		},
 	}
 	if rpc.Input == nil || rpc.Output == nil {

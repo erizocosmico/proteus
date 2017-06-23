@@ -106,13 +106,13 @@ type MyDuration struct {
 	Name     string
 }
 
-//proteus:generate
+//proteus:generate api_method:"post" api_path:"/random/number"
 func RandomNumber(mean, std float64) float64 {
 	// Related documentation: https://xkcd.com/221/
 	return 4*std + mean // 4 was chosen using the XKCD RNG
 }
 
-//proteus:generate
+//proteus:generate api_method:"get" api_path:"/random/category"
 func RandomCategory() categories.CategoryOptions {
 	return categories.CategoryOptions{
 		ShowPrices: RandomBool(),
@@ -120,12 +120,12 @@ func RandomCategory() categories.CategoryOptions {
 	}
 }
 
-//proteus:generate
+//proteus:generate api_method:"get" api_path:"/time/alpha"
 func GetAlphaTime() MyTime {
 	return MyTime{Time: time.Unix(0, 0), Name: "alpha"}
 }
 
-//proteus:generate
+//proteus:generate api_method:"get" api_path:"/time/omega"
 func GetOmegaTime() (*MyTime, error) {
 	t, err := time.Parse("Jan 2, 2006 at 3:04pm", "Dec 12, 2012 at 10:30am")
 	if err != nil {
@@ -135,7 +135,7 @@ func GetOmegaTime() (*MyTime, error) {
 	return &MyTime{Time: t, Name: "omega"}, nil
 }
 
-//proteus:generate
+//proteus:generate api_method:"get" api_path:"/duration/{arg1}"
 func GetDurationForLength(meters int64) *MyDuration {
 	return &MyDuration{
 		Duration: time.Second * time.Duration(meters/299792458),
@@ -143,7 +143,7 @@ func GetDurationForLength(meters int64) *MyDuration {
 	}
 }
 
-//proteus:generate
+//proteus:generate api_method:"get" api_path:"/product/phone"
 func GetPhone() *Product {
 	return &Product{
 		Name:       "MiPhone",

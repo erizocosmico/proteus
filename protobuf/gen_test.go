@@ -36,12 +36,12 @@ func (s *GenSuite) TearDownTest() {
 }
 
 const expectedOptionsIndented = `	option bar = true;
-	option baz = { kbaz = 123 kfoo = "bar" };
+	option baz = { kbaz: 123 kfoo: "bar" };
 	option foo = "bar";
 `
 
 const expectedOptions = `option bar = true;
-option baz = { kbaz = 123 kfoo = "bar" };
+option baz = { kbaz: 123 kfoo: "bar" };
 option foo = "bar";
 `
 

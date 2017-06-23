@@ -165,7 +165,7 @@ func (v MapValue) String() string {
 	buf.WriteString("{ ")
 	for _, k := range keys {
 		buf.WriteString(k)
-		buf.WriteString(" = ")
+		buf.WriteString(": ")
 		buf.WriteString(v[k].String())
 		buf.WriteRune(' ')
 	}

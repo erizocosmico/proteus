@@ -2,6 +2,7 @@ syntax = "proto3";
 package gopkg.in.srcd.proteus.v1.example;
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "gopkg.in/src-d/proteus.v1/example/categories/generated.proto";
 import "google/protobuf/duration.proto";
@@ -95,11 +96,23 @@ enum Type {
 }
 
 service ExampleService {
-	rpc GetAlphaTime (gopkg.in.srcd.proteus.v1.example.GetAlphaTimeRequest) returns (gopkg.in.srcd.proteus.v1.example.MyTime);
-	rpc GetDurationForLength (gopkg.in.srcd.proteus.v1.example.GetDurationForLengthRequest) returns (gopkg.in.srcd.proteus.v1.example.MyDuration);
-	rpc GetOmegaTime (gopkg.in.srcd.proteus.v1.example.GetOmegaTimeRequest) returns (gopkg.in.srcd.proteus.v1.example.MyTime);
-	rpc GetPhone (gopkg.in.srcd.proteus.v1.example.GetPhoneRequest) returns (gopkg.in.srcd.proteus.v1.example.Product);
-	rpc RandomCategory (gopkg.in.srcd.proteus.v1.example.RandomCategoryRequest) returns (gopkg.in.srcd.proteus.v1.example.categories.CategoryOptions);
-	rpc RandomNumber (gopkg.in.srcd.proteus.v1.example.RandomNumberRequest) returns (gopkg.in.srcd.proteus.v1.example.RandomNumberResponse);
+	rpc GetAlphaTime (gopkg.in.srcd.proteus.v1.example.GetAlphaTimeRequest) returns (gopkg.in.srcd.proteus.v1.example.MyTime) {
+	option (google.api.http) = { get: "/time/alpha" };
+	};
+	rpc GetDurationForLength (gopkg.in.srcd.proteus.v1.example.GetDurationForLengthRequest) returns (gopkg.in.srcd.proteus.v1.example.MyDuration) {
+	option (google.api.http) = { get: "/duration/{arg1}" };
+	};
+	rpc GetOmegaTime (gopkg.in.srcd.proteus.v1.example.GetOmegaTimeRequest) returns (gopkg.in.srcd.proteus.v1.example.MyTime) {
+	option (google.api.http) = { get: "/time/omega" };
+	};
+	rpc GetPhone (gopkg.in.srcd.proteus.v1.example.GetPhoneRequest) returns (gopkg.in.srcd.proteus.v1.example.Product) {
+	option (google.api.http) = { get: "/product/phone" };
+	};
+	rpc RandomCategory (gopkg.in.srcd.proteus.v1.example.RandomCategoryRequest) returns (gopkg.in.srcd.proteus.v1.example.categories.CategoryOptions) {
+	option (google.api.http) = { get: "/random/category" };
+	};
+	rpc RandomNumber (gopkg.in.srcd.proteus.v1.example.RandomNumberRequest) returns (gopkg.in.srcd.proteus.v1.example.RandomNumberResponse) {
+	option (google.api.http) = { body: "*" post: "/random/number" };
+	};
 }
 

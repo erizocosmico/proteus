@@ -85,6 +85,15 @@ message RandomNumberResponse {
 	double result1 = 1;
 }
 
+message SumRequest {
+	int64 arg1 = 1;
+	int64 arg2 = 2;
+}
+
+message SumResponse {
+	int64 result1 = 1;
+}
+
 // Type will be transformed into an enum.
 enum Type {
 	option (gogoproto.enumdecl) = false;
@@ -113,6 +122,9 @@ service ExampleService {
 	};
 	rpc RandomNumber (gopkg.in.srcd.proteus.v1.example.RandomNumberRequest) returns (gopkg.in.srcd.proteus.v1.example.RandomNumberResponse) {
 	option (google.api.http) = { body: "*" post: "/random/number" };
+	};
+	rpc Sum (gopkg.in.srcd.proteus.v1.example.SumRequest) returns (gopkg.in.srcd.proteus.v1.example.SumResponse) {
+	option (google.api.http) = { get: "/sum/{arg1}/{arg2}" };
 	};
 }
 

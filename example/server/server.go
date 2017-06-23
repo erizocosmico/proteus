@@ -1,7 +1,11 @@
 package server
 
 import (
+	"context"
 	"net"
+	"net/http"
+
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 
 	"gopkg.in/src-d/proteus.v1/example"
 
@@ -19,4 +23,20 @@ func NewServer(addr string) (*grpc.Server, error) {
 	example.RegisterExampleServiceServer(grpcServer, example.NewExampleServiceServer())
 	go grpcServer.Serve(lis)
 	return grpcServer, nil
+}
+
+// RunGRPCGatewayServer executes the GRPC-Gateway server on the given addr.
+// Will forward all requests to the GRPC server at the given endpoint.
+func RunGRPCGatewayServer(addr, endpoint string) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithInsecure()}
+	err := example.RegisterExampleServiceHandlerFromEndpoint(ctx, mux, endpoint, opts)
+	if err != nil {
+		return err
+	}
+
+	return http.ListenAndServe(addr, mux)
 }

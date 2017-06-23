@@ -1,7 +1,9 @@
 package proteus
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -58,7 +60,26 @@ func ExampleProteus() {
 	if err != nil {
 		panic(fmt.Sprintf("could not receive duration: %s", err))
 	}
-	fmt.Printf("Duration: %d", duration.Duration/time.Second)
+	fmt.Printf("Duration: %d\n", duration.Duration/time.Second)
+
+	go func() {
+		err := server.RunGRPCGatewayServer(":8585", "localhost:8001")
+		if err != nil {
+			panic(fmt.Sprintf("error running GRPC gateway server: %s", err))
+		}
+	}()
+
+	resp, err := http.Get("http://localhost:8585/sum/5/6")
+	if err != nil {
+		panic(err)
+	}
+
+	var result = make(map[string]interface{})
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Sum 5 + 6: %v", result["result1"])
 
 	// Output: 4
 	// true
@@ -68,4 +89,5 @@ func ExampleProteus() {
 	// MiPhone
 	// cool, mi, phone
 	// Duration: 1
+	// Sum 5 + 6: 11
 }

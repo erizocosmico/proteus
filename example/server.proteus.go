@@ -43,3 +43,8 @@ func (s *exampleServiceServer) RandomNumber(ctx context.Context, in *RandomNumbe
 	result.Result1 = RandomNumber(in.Arg1, in.Arg2)
 	return
 }
+func (s *exampleServiceServer) Sum(ctx context.Context, in *SumRequest) (result *SumResponse, err error) {
+	result = new(SumResponse)
+	result.Result1 = Sum(in.Arg1, in.Arg2)
+	return
+}

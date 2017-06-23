@@ -154,6 +154,11 @@ func GetPhone() *Product {
 	}
 }
 
+//proteus:generate api_method:"get" api_path:"/sum/{arg1}/{arg2}"
+func Sum(a, b int64) int64 {
+	return a + b
+}
+
 func RandomBool() bool {
 	return true // Truly random. Selected by flipping a coin... once.
 }

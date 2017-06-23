@@ -10,6 +10,8 @@ matrix:
         - go: tip
 
 install:
+  - go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
+  - go get -u github.com/golang/protobuf/protoc-gen-go
   - mkdir -p $GOPATH/src/gopkg.in/src-d
   - mv $(pwd) $GOPATH/src/gopkg.in/src-d/proteus.v1
   - cd $GOPATH/src/gopkg.in/src-d/proteus.v1

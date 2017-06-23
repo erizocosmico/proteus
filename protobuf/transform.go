@@ -123,6 +123,12 @@ func (t *Transformer) transformFunc(pkg *Package, f *scanner.Func, names nameSet
 		IsVariadic: f.IsVariadic,
 		Input:      t.transformInputTypes(pkg, f.Input, names, name),
 		Output:     t.transformOutputTypes(pkg, output, names, name),
+		Options: Options{
+			"(google.api.http)": MapValue{
+				f.Method: NewStringValue(f.Path),
+				"body":   NewStringValue("*"),
+			},
+		},
 	}
 	if rpc.Input == nil || rpc.Output == nil {
 		return nil

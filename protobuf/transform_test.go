@@ -550,6 +550,24 @@ func (s *TransformerSuite) TestTransformFuncEmpty() {
 	s.Equal(0, len(msg.Fields), "DoFooResponse should have no results")
 }
 
+func (s *TransformerSuite) TestTransformJSONAPIOptions() {
+	fn := &scanner.Func{
+		Name:   "DoFoo",
+		Method: "post",
+		Path:   "/foo/{bar}",
+	}
+	pkg := &Package{Path: "baz"}
+	rpc := s.t.transformFunc(pkg, fn, nameSet{})
+
+	s.NotNil(rpc)
+	s.Equal(Options{
+		"(google.api.http)": MapValue{
+			"post": NewStringValue("/foo/{bar}"),
+			"body": NewStringValue("*"),
+		},
+	}, rpc.Options)
+}
+
 func (s *TransformerSuite) TestTransformFunc1BasicArg() {
 	fn := &scanner.Func{
 		Name: "DoFoo",

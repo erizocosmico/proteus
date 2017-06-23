@@ -202,6 +202,8 @@ func (s *ResolverSuite) TestResolve() {
 			scanner.NewBasic("bool"),
 			scanner.NewNamed("", "error"),
 		},
+		Method: "get",
+		Path:   "/generated",
 	}, findFuncByName("Generated", pkgs[1].Funcs))
 
 	s.Equal(&scanner.Func{
@@ -214,6 +216,8 @@ func (s *ResolverSuite) TestResolve() {
 			nullable(scanner.NewNamed(projectPath("fixtures/subpkg"), "Point")),
 		},
 		Receiver: scanner.NewNamed(projectPath("fixtures/subpkg"), "Point"),
+		Method:   "get",
+		Path:     "/point/bar",
 	}, findFuncByName("GeneratedMethod", pkgs[1].Funcs))
 
 	s.Equal(&scanner.Func{
@@ -226,6 +230,8 @@ func (s *ResolverSuite) TestResolve() {
 			nullable(scanner.NewNamed(projectPath("fixtures/subpkg"), "Point")),
 		},
 		Receiver: nullable(scanner.NewNamed(projectPath("fixtures/subpkg"), "Point")),
+		Method:   "get",
+		Path:     "/point/foo",
 	}, findFuncByName("GeneratedMethodOnPointer", pkgs[1].Funcs))
 
 	s.Equal(&scanner.Func{
@@ -236,6 +242,8 @@ func (s *ResolverSuite) TestResolve() {
 			scanner.NewBasic("string"),
 		},
 		Receiver: nullable(scanner.NewNamed(projectPath("fixtures/subpkg"), "MyContainer")),
+		Method:   "get",
+		Path:     "/container/name",
 	}, findFuncByName("Name", pkgs[1].Funcs))
 }
 
